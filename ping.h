@@ -1,4 +1,5 @@
 #ifndef PING_H
+#define PING_H
 
 #include <stdint.h>
 #include <netinet/ip_icmp.h>
