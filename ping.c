@@ -11,6 +11,8 @@
 
 #include "ping.h"
 
+#define U32_SIZE sizeof(uint32_t)
+
 void usage_message(char *program_name)
 {
     fprintf(stderr, "Usage: %s [-i] file_name destination\n", program_name);
@@ -105,7 +107,7 @@ int main(int argc, char *argv[])
         exit(3);
     }
 
-    uint8_t data_in[4] = {0};
+    uint8_t data_in[U32_SIZE] = {0};
     size_t data_in_size = sizeof(*data_in);
 
     struct in_addr destination_ip;
@@ -134,9 +136,13 @@ int main(int argc, char *argv[])
 
     while (!feof(file_stream))
     {
-        // ignoring the result of fread as we are checking for eof in loop condition
-        // and don't care about errors.
-        fread(data_in, data_in_size, 4, file_stream);
+        int fread_result = fread(data_in, data_in_size, U32_SIZE, file_stream);
+        if (fread_result == 0)
+        {
+            // not really needed, just satisfying a warning
+            break;
+        }
+
 
         uint32_t data = data_in[3] << 24 | data_in[2] << 16 | data_in[1] << 8 | data_in[0];
 
@@ -164,7 +170,7 @@ int main(int argc, char *argv[])
         }
 
         sequence_number++;
-        memset(data_in, 0, 4);
+        memset(data_in, 0, U32_SIZE);
 
     }
 
